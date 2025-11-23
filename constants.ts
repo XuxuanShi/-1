@@ -14,6 +14,18 @@ export const XP_REWARDS = {
 
 export const INITIAL_DAILY_LIMIT = 5;
 
+export const DISCOVERY_TOPICS = [
+  "Daily Conversation (日常会话)",
+  "Food & Dim Sum (饮食点心)",
+  "Slang & Idioms (俗语潮语)",
+  "Travel & Transport (旅游交通)",
+  "Work & Business (职场工作)",
+  "Emotions & Feelings (情绪表达)",
+  "Shopping (购物)",
+  "Romance (恋爱)",
+  "Emergency (紧急情况)"
+];
+
 // Seed data to let the user start immediately
 export const SEED_CARDS: Card[] = [
   {

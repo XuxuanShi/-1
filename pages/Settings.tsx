@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, UserStats } from '../types';
-import { Download, Trash2, Database } from 'lucide-react';
+import { Download, Trash2, Database, FileSpreadsheet } from 'lucide-react';
 import { Button } from '../components/Button';
 
 interface SettingsProps {
@@ -12,22 +12,35 @@ interface SettingsProps {
 export const Settings: React.FC<SettingsProps> = ({ cards, stats, onReset }) => {
   
   const handleExport = () => {
-    const headers = ['ID', 'Cantonese', 'Jyutping', 'Meaning', 'Example', 'Example Jyutping', 'Status', 'Next Review'];
-    const csvContent = [
+    const headers = ['ID', 'Cantonese', 'Jyutping', 'Meaning', 'Example', 'Example Jyutping', 'Example Meaning', 'Tags', 'Status', 'Next Review'];
+    
+    // Create CSV content
+    const csvRows = [
       headers.join(','),
-      ...cards.map(c => [
-        c.id,
-        c.cantonese,
-        c.jyutping,
-        c.mandarin,
-        `"${c.example || ''}"`,
-        `"${c.exampleJyutping || ''}"`,
-        c.status,
-        new Date(c.nextReviewDate).toLocaleDateString()
-      ].join(','))
-    ].join('\n');
+      ...cards.map(c => {
+        // Helper to escape quotes for CSV
+        const escape = (str?: string) => `"${(str || '').replace(/"/g, '""')}"`;
+        
+        return [
+          c.id,
+          c.cantonese,
+          c.jyutping,
+          escape(c.mandarin),
+          escape(c.example),
+          escape(c.exampleJyutping),
+          escape(c.exampleMeaning),
+          escape(c.tags.join('; ')),
+          c.status,
+          new Date(c.nextReviewDate).toLocaleDateString()
+        ].join(',');
+      })
+    ];
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const csvContent = csvRows.join('\n');
+
+    // Add Byte Order Mark (BOM) for UTF-8 so Excel opens it correctly with Chinese characters
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -48,10 +61,10 @@ export const Settings: React.FC<SettingsProps> = ({ cards, stats, onReset }) => 
                 <h3 className="font-bold text-lg">Data Management</h3>
             </div>
             <p className="text-slate-500 text-sm mb-4">
-                Export your flashcards and learning history to CSV for backup or Excel analysis.
+                Export your flashcards and learning history to an Excel-compatible CSV file.
             </p>
             <Button onClick={handleExport} variant="outline" fullWidth className="flex items-center gap-2 justify-center">
-                <Download size={18} /> Export Data
+                <FileSpreadsheet size={18} /> Export to Excel
             </Button>
           </div>
 
@@ -70,7 +83,7 @@ export const Settings: React.FC<SettingsProps> = ({ cards, stats, onReset }) => 
           </div>
           
           <div className="text-center text-xs text-slate-400 mt-8">
-            <p>Cantonese Memory Pro v1.0.0</p>
+            <p>Cantonese Memory Pro v1.1.0</p>
             <p>Built with React & Gemini AI</p>
           </div>
        </div>
